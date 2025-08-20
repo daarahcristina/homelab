@@ -156,7 +156,7 @@ vim docker-compose.yml
 
 ### 6. Configurando sua Homepage
 
-  1. Edite o docker-compose.yml do seu Homepage.
+  1. Edite o `docker-compose.yml` do seu Homepage.
   2. Adicione um volume para mapear o "socket" do Docker para dentro do contêiner do Homepage.
   3. ```yaml
      # No seu arquivo docker-compose.yml do Homepage...
@@ -203,9 +203,9 @@ vim docker-compose.yml
               description: Bloqueador de Anúncios da Rede
               icon: mdi-shield-dns
               container: adguard ```
-    
-    7. Depois de salvar os arquivos services.yaml e widgets.yaml, o Homepage deve recarregar a configuração automaticamente. Se não o fizer, reinicie o contêiner: ```docker-compose restart homepage ```
- 
+
+  7. Depois de salvar os arquivos services.yaml e widgets.yaml, o Homepage deve recarregar a configuração automaticamente. Se não o fizer, reinicie o contêiner: ```docker-compose restart homepage ```
+
 ### 7. Acessando Remotamente
   1. Baixe e instale o cliente Twingate no seu notebook, celular ou outro dispositivo.
   2. Faça login na sua conta.

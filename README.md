@@ -50,7 +50,7 @@ cd homelab`
 ### 3. Docker Compose
 * Criar um arquivo docker-compose.yml dentro da pasta de cada aplicação a ser subida no homelab.
 
-###Homepage
+### Homepage
 `cd homepage
 vim docker-compose.yml`
 

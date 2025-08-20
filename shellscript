@@ -1,0 +1,268 @@
+#!/bin/bash
+
+# ==============================================================================
+# Script de Automação para Setup de Homelab com Docker e Twingate
+# Este script irá configurar Nextcloud, Jellyfin, Uptime Kuma e Twingate.
+# ==============================================================================
+
+# --- Funções de Cor para Melhor Visualização ---
+C_OFF='\033[0m'
+C_BLUE='\033[0;34m'
+C_GREEN='\033[0;32m'
+C_YELLOW='\033[0;33m'
+C_RED='\033[0;31m'
+
+info() {
+    echo -e "${C_BLUE}INFO:${C_OFF} $1"
+}
+
+success() {
+    echo -e "${C_GREEN}SUCESSO:${C_OFF} $1"
+}
+
+warning() {
+    echo -e "${C_YELLOW}AVISO:${C_OFF} $1"
+}
+
+error() {
+    echo -e "${C_RED}ERRO:${C_OFF} $1" >&2
+    exit 1
+}
+
+# --- Função Principal ---
+main() {
+    clear
+    echo "================================================="
+    echo "    Bem-vindo ao Setup Automatizado de Homelab   "
+    echo "================================================="
+    echo
+
+    check_dependencies
+    setup_variables
+    create_directories
+    create_docker_compose
+    create_homepage_config
+    start_services
+    final_summary
+}
+
+# --- Verificação de Dependências ---
+check_dependencies() {
+    info "Verificando se Docker e Docker Compose estão instalados..."
+    if ! command -v docker &> /dev/null; then
+        error "Docker não encontrado. Por favor, instale o Docker antes de continuar."
+    fi
+    if ! command -v docker-compose &> /dev/null; then
+        error "Docker Compose não encontrado. Por favor, instale-o antes de continuar."
+    fi
+    success "Dependências encontradas!"
+    echo
+}
+
+# --- Coleta de Variáveis do Usuário ---
+setup_variables() {
+    info "Vamos configurar as variáveis necessárias."
+    
+    read -p "Digite a senha que você deseja para o banco de dados do Nextcloud: " -s NEXTCLOUD_DB_PASSWORD
+    echo
+    if [ -z "$NEXTCLOUD_DB_PASSWORD" ]; then
+        error "A senha do banco de dados não pode ser vazia."
+    fi
+    
+    warning "Agora, você precisará das suas credenciais do Twingate."
+    warning "Acesse seu painel do Twingate, crie um Connector do tipo Docker e copie os tokens."
+    
+    read -p "Cole aqui o seu TWINGATE_NETWORK: " TWINGATE_NETWORK
+    read -p "Cole aqui o seu TWINGATE_ACCESS_TOKEN: " TWINGATE_ACCESS_TOKEN
+    read -p "Cole aqui o seu TWINGATE_REFRESH_TOKEN: " TWINGATE_REFRESH_TOKEN
+
+    if [ -z "$TWINGATE_NETWORK" ] || [ -z "$TWINGATE_ACCESS_TOKEN" ] || [ -z "$TWINGATE_REFRESH_TOKEN" ]; then
+        error "As credenciais do Twingate são obrigatórias."
+    fi
+
+    # Pega IDs de usuário e grupo automaticamente
+    PUID=$(id -u)
+    PGID=$(id -g)
+    
+    echo
+    success "Variáveis configuradas!"
+    echo
+}
+
+# --- Criação da Estrutura de Diretórios ---
+create_directories() {
+    info "Criando a estrutura de diretórios em ./homelab..."
+    mkdir -p homelab/{nextcloud/{data,config,db},jellyfin/{config,media},uptime-kuma/data,homepage/config}
+    cd homelab || error "Não foi possível entrar no diretório 'homelab'."
+    success "Estrutura de diretórios criada."
+    echo
+}
+
+# --- Geração do Arquivo Docker Compose Unificado ---
+create_docker_compose() {
+    info "Gerando o arquivo docker-compose.yml..."
+    
+    cat << EOF > docker-compose.yml
+version: "3.8"
+
+networks:
+  homelab-net:
+    driver: bridge
+
+services:
+  # --- Nuvem Pessoal ---
+  nextcloud:
+    image: linuxserver/nextcloud:latest
+    container_name: nextcloud
+    restart: unless-stopped
+    networks:
+      - homelab-net
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=America/Sao_Paulo
+    volumes:
+      - ./nextcloud/config:/config
+      - ./nextcloud/data:/data
+    depends_on:
+      - nextcloud-db
+
+  nextcloud-db:
+    image: postgres:15
+    container_name: nextcloud-db
+    restart: unless-stopped
+    networks:
+      - homelab-net
+    volumes:
+      - ./nextcloud/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=nextcloud
+      - POSTGRES_USER=nextcloud
+      - POSTGRES_PASSWORD=${NEXTCLOUD_DB_PASSWORD}
+
+  # --- Servidor de Mídia ---
+  jellyfin:
+    image: linuxserver/jellyfin:latest
+    container_name: jellyfin
+    restart: unless-stopped
+    networks:
+      - homelab-net
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=America/Sao_Paulo
+    volumes:
+      - ./jellyfin/config:/config
+      - ./jellyfin/media:/data/media
+
+  # --- Monitoramento ---
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime-kuma
+    restart: unless-stopped
+    networks:
+      - homelab-net
+    volumes:
+      - ./uptime-kuma/data:/app/data
+      
+  # --- Acesso Remoto Seguro ---
+  twingate-connector:
+    image: twingate/connector:latest
+    container_name: twingate-connector
+    restart: unless-stopped
+    networks:
+      - homelab-net
+    environment:
+      - TWINGATE_NETWORK=${TWINGATE_NETWORK}
+      - TWINGATE_ACCESS_TOKEN=${TWINGATE_ACCESS_TOKEN}
+      - TWINGATE_REFRESH_TOKEN=${TWINGATE_REFRESH_TOKEN}
+
+  # --- Painel de Controle ---
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    restart: unless-stopped
+    networks:
+      - homelab-net
+    ports:
+      - "3001:3000" # Expondo a porta 3001 para acesso local
+    volumes:
+      - ./homepage/config:/app/config
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+EOF
+
+    success "Arquivo docker-compose.yml gerado com sucesso."
+    echo
+}
+
+# --- Criação do Arquivo de Configuração do Homepage ---
+create_homepage_config() {
+    info "Gerando arquivo de configuração inicial para o Homepage (services.yaml)..."
+
+    cat << EOF > ./homepage/config/services.yaml
+# Lembre-se de editar as URLs depois de configurar os Recursos no Twingate!
+- "Nuvem Pessoal":
+    - Nextcloud:
+        href: http://nextcloud.homelab.local # Exemplo de URL do Twingate
+        description: Arquivos, Calendário e Contatos
+        icon: mdi-nextcloud
+        container: nextcloud
+
+- "Mídia e Monitoramento":
+    - Jellyfin:
+        href: http://jellyfin.homelab.local # Exemplo de URL do Twingate
+        description: Servidor de Mídia
+        icon: mdi-jellyfin
+        container: jellyfin
+
+    - Uptime Kuma:
+        href: http://kuma.homelab.local # Exemplo de URL do Twingate
+        description: Monitor de Serviços
+        icon: mdi-chart-donut
+        container: uptime-kuma
+EOF
+
+    success "Arquivo services.yaml gerado."
+    warning "Você precisará editar as URLs ('href') neste arquivo com os endereços que você configurar no Twingate."
+    echo
+}
+
+# --- Inicialização dos Serviços ---
+start_services() {
+    info "Iniciando todos os contêineres em segundo plano..."
+    docker-compose up -d
+
+    if [ $? -eq 0 ]; then
+        success "Todos os serviços foram iniciados!"
+    else
+        error "Ocorreu um erro ao tentar iniciar os serviços com docker-compose."
+        info "Tente rodar 'docker-compose logs -f' para ver os detalhes do erro."
+    fi
+    echo
+}
+
+# --- Resumo Final e Próximos Passos ---
+final_summary() {
+    echo "================================================="
+    echo "          🚀 SETUP DO HOMELAB CONCLUÍDO 🚀       "
+    echo "================================================="
+    echo
+    info "Seus serviços estão rodando! Agora, siga estes passos manuais:"
+    echo "1.  Painel do Twingate:"
+    echo "    - Verifique se o seu 'Connector' aparece como conectado."
+    echo "    - Crie os 'Resources' para Nextcloud, Jellyfin e Uptime Kuma como descrito na documentação."
+    echo
+    echo "2.  Configuração dos Serviços:"
+    echo "    - Para configurar o Nextcloud pela primeira vez, acesse-o via Twingate."
+    echo "    - Faça o mesmo para Jellyfin e Uptime Kuma para criar seus usuários e senhas."
+    echo
+    echo "3.  Homepage Dashboard:"
+    echo "    - Acesse seu Homepage localmente em http://IP_DO_SEU_SERVIDOR:3001."
+    echo "    - Edite o arquivo 'homelab/homepage/config/services.yaml' com as URLs corretas do Twingate que você criou."
+    echo
+    warning "Para verificar os logs de algum serviço, use: 'docker-compose logs -f <nome_do_servico>'"
+    echo
+}
+
+# --- Ponto de Entrada do Script ---
+main

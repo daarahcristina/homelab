@@ -136,19 +136,19 @@ cd homelab`
   3. Adicione os Recursos (Serviços):
     - Vá para a sua rede remota ("Homelab") e clique em Add Resource.
     - Crie um recurso para cada serviço que você quer acessar. Use o nome do contêiner Docker como o endereço.
-      * Recurso 1: Jellyfin
+     ### Recurso 1: Jellyfin
       * Label: Jellyfin
       * DNS Address: jellyfin.homelab.local (este será o endereço que você usará no seu navegador)
       * Private Address: jellyfin:8096 (nome_do_contêiner:porta_interna)
       * Port Restrictions: TCP 8096
 
-      * Recurso 2: Nextcloud
+     ### Recurso 2: Nextcloud
       * Label: Nextcloud
       * DNS Address: nextcloud.homelab.local
       * Private Address: nextcloud:443
       * Port Restrictions: TCP 443
 
-      * Recurso 3: Uptime Kuma
+     ### Recurso 3: Uptime Kuma
       * Label: Uptime Kuma
       * DNS Address: kuma.homelab.local
       * Private Address: uptime-kuma:3001

@@ -50,77 +50,85 @@ cd homelab`
 ### 3. Docker Compose
 * Criar um arquivo docker-compose.yml dentro da pasta de cada aplicação a ser subida no homelab.
 
-```yaml
+--- Nextcloud ---
+      ```yaml
+      
+      cd nextcloud
+      vim docker-compose.yml
+      
+      version: "3.8"
+      
+      services:
+        --- Nuvem Pessoal ---
+        nextcloud:
+          image: linuxserver/nextcloud:latest
+          container_name: nextcloud
+          restart: unless-stopped
+          environment:
+            - PUID=1000 # Rode 'id -u' no terminal para pegar seu ID
+            - PGID=1000 # Rode 'id -g' no terminal para pegar seu ID
+            - TZ=America/Sao_Paulo
+          volumes:
+            - ./nextcloud/config:/config
+            - ./nextcloud/data:/data
+          depends_on:
+            - nextcloud-db
+      
+        nextcloud-db:
+          image: postgres:15
+          container_name: nextcloud-db
+          restart: unless-stopped
+          volumes:
+            - ./nextcloud/db:/var/lib/postgresql/data
+          environment:
+            - POSTGRES_DB=nextcloud
+            - POSTGRES_USER=nextcloud
+            - POSTGRES_PASSWORD=sua_senha_forte_aqui # MUDE ISTO ```
 
-cd nextcloud
-vim docker-compose.yml
+--- Jellyfin --- 
+         ```yaml
+      
+      cd nextcloud
+      vim docker-compose.yml
+        
+         --- Servidor de Mídia ---
+          jellyfin:
+            image: linuxserver/jellyfin:latest
+            container_name: jellyfin
+            restart: unless-stopped
+            environment:
+              - PUID=1000
+              - PGID=1000
+              - TZ=America/Sao_Paulo
+            volumes:
+              - ./jellyfin/config:/config
+              - ./jellyfin/media:/data/media # Coloque seus filmes/séries aqui```
 
-version: "3.8"
+--- Uptimekuma ---
+       ```yaml
+      cd uptime-kuma
+      vim docker-compose.yml
+      
+        --- Monitoramento ---
+        uptime-kuma:
+          image: louislam/uptime-kuma:1
+          container_name: uptime-kuma
+          restart: unless-stopped
+          volumes:
+            - ./uptime-kuma/data:/app/data```
 
-services:
-  --- Nuvem Pessoal ---
-  nextcloud:
-    image: linuxserver/nextcloud:latest
-    container_name: nextcloud
-    restart: unless-stopped
-    environment:
-      - PUID=1000 # Rode 'id -u' no terminal para pegar seu ID
-      - PGID=1000 # Rode 'id -g' no terminal para pegar seu ID
-      - TZ=America/Sao_Paulo
-    volumes:
-      - ./nextcloud/config:/config
-      - ./nextcloud/data:/data
-    depends_on:
-      - nextcloud-db
-
-  nextcloud-db:
-    image: postgres:15
-    container_name: nextcloud-db
-    restart: unless-stopped
-    volumes:
-      - ./nextcloud/db:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_DB=nextcloud
-      - POSTGRES_USER=nextcloud
-      - POSTGRES_PASSWORD=sua_senha_forte_aqui # MUDE ISTO
-
-cd nextcloud
-vim docker-compose.yml
-
- --- Servidor de Mídia ---
-  jellyfin:
-    image: linuxserver/jellyfin:latest
-    container_name: jellyfin
-    restart: unless-stopped
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=America/Sao_Paulo
-    volumes:
-      - ./jellyfin/config:/config
-      - ./jellyfin/media:/data/media # Coloque seus filmes/séries aqui
-
-cd uptime-kuma
-vim docker-compose.yml
-
-  --- Monitoramento ---
-  uptime-kuma:
-    image: louislam/uptime-kuma:1
-    container_name: uptime-kuma
-    restart: unless-stopped
-    volumes:
-      - ./uptime-kuma/data:/app/data
-
-cd twingate
-vim docker-compose.yml
-
-   --- Acesso Remoto ---
-   twingate-connector:
-      image: twingate/connector:latest
-      environment:
-        - TWINGATE_NETWORK=sua_rede
-        - TWINGATE_ACESS_TOKEN=seu_token_de_acesso
-        - TWINGATE_REFRESH_TOKEN=seu_token_de_refresh
+--- Twingate ---
+     ```yaml
+    cd twingate
+    vim docker-compose.yml
+    
+       --- Acesso Remoto ---
+       twingate-connector:
+          image: twingate/connector:latest
+          environment:
+            - TWINGATE_NETWORK=sua_rede
+            - TWINGATE_ACESS_TOKEN=seu_token_de_acesso
+            - TWINGATE_REFRESH_TOKEN=seu_token_de_refresh
   ```
 
 ### 4. Configuração do Twingate

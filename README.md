@@ -51,8 +51,10 @@ cd homelab`
 * Criar um arquivo docker-compose.yml dentro da pasta de cada aplicação a ser subida no homelab.
 
 ## Nextcloud 
-      cd nextcloud
-      vim docker-compose.yml
+sh
+$ ./launch-taiga.sh
+cd nextcloud
+vim docker-compose.yml
       
       version: "3.8"
       

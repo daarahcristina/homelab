@@ -87,23 +87,25 @@ cd homelab`
       cd nextcloud
       vim docker-compose.yml
         
-         --- Servidor de Mídia ---
-          jellyfin:
-            image: linuxserver/jellyfin:latest
-            container_name: jellyfin
-            restart: unless-stopped
-            environment:
-              - PUID=1000
-              - PGID=1000
-              - TZ=America/Sao_Paulo
-            volumes:
-              - ./jellyfin/config:/config
-              - ./jellyfin/media:/data/media # Coloque seus filmes/séries aqui
+      services:
+      --- Servidor de Mídia ---
+         jellyfin:
+           image: linuxserver/jellyfin:latest
+           container_name: jellyfin
+           restart: unless-stopped
+           environment:
+             - PUID=1000
+             - PGID=1000
+             - TZ=America/Sao_Paulo
+           volumes:
+             - ./jellyfin/config:/config
+             - ./jellyfin/media:/data/media # Coloque seus filmes/séries aqui
 
 ## Uptimekuma
       cd uptime-kuma
       vim docker-compose.yml
-      
+
+      services:
         --- Monitoramento ---
         uptime-kuma:
           image: louislam/uptime-kuma:1
@@ -115,14 +117,15 @@ cd homelab`
 ## Twingate    
     cd twingate
     vim docker-compose.yml
-    
+
+    services:
        --- Acesso Remoto ---
-       twingate-connector:
-          image: twingate/connector:latest
-          environment:
-            - TWINGATE_NETWORK=sua_rede
-            - TWINGATE_ACESS_TOKEN=seu_token_de_acesso
-            - TWINGATE_REFRESH_TOKEN=seu_token_de_refresh
+      twingate-connector:
+         image: twingate/connector:latest
+         environment:
+           - TWINGATE_NETWORK=sua_rede
+           - TWINGATE_ACESS_TOKEN=seu_token_de_acesso
+           - TWINGATE_REFRESH_TOKEN=seu_token_de_refresh
 
 ### 4. Configuração do Twingate
   1. Crie uma Rede Remota: No painel do Twingate, vá em Network -> Remote Networks e crie uma nova rede (ex: "Homelab").

@@ -44,11 +44,30 @@ A arquitetura é projetada para ser simples e segura:
 Para uma melhor organização, crie a seguinte estrutura de pastas no seu servidor:
 
 `bash
-mkdir -p homelab/nextcloud/data homelab/nextcloud/config homelab/jellyfin/config homelab/jellyfin/media homelab/uptime-kuma/data homelab/twingate
+mkdir -p homelab/nextcloud/data homelab/nextcloud/config homelab/jellyfin/config homelab/jellyfin/media homelab/uptime-kuma/data homelab/twingate homelab/homepage
 cd homelab` 
 
 ### 3. Docker Compose
 * Criar um arquivo docker-compose.yml dentro da pasta de cada aplicação a ser subida no homelab.
+
+###Homepage
+`cd homepage
+vim docker-compose.yml`
+
+      version: "3.3"
+      services:
+        --- Homepage ---
+        homepage:
+          image: gethomepage/homepage:latest
+          container_name: homepage
+          environment:
+            - HOMEPAGE_ALLOWED_HOSTS=seu_ip_com_porta
+          restart: unless-stopped
+          volumes:
+            - ./config:/app/config
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+          ports:
+            - "8082:3000"
 
 ### Nextcloud 
 `cd nextcloud

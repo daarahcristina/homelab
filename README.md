@@ -50,7 +50,7 @@ cd homelab`
 ### 3. Docker Compose
 * Criar um arquivo docker-compose.yml dentro da pasta de cada aplicação a ser subida no homelab.
 
-```
+```yaml
 version: "3.8"
 
 networks:
@@ -143,7 +143,7 @@ services:
 
   4. Dê Permissão de Acesso: Adicione seu usuário aos grupos que têm permissão para acessar esses novos recursos.
 
-### 5. Inicie os serviços com: docker-compose up -d
+### 5. Inicie os serviços com: `docker-compose up -d ` 
 
 ### 6. Acessando Remotamente
   1. Baixe e instale o cliente Twingate no seu notebook, celular ou outro dispositivo.

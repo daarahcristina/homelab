@@ -50,8 +50,7 @@ cd homelab`
 ### 3. Docker Compose
 * Criar um arquivo docker-compose.yml dentro da pasta de cada aplicação a ser subida no homelab.
 
---- Nextcloud ---
-
+## Nextcloud 
       ``` yaml           
       cd nextcloud
       vim docker-compose.yml
@@ -85,7 +84,7 @@ cd homelab`
             - POSTGRES_USER=nextcloud
             - POSTGRES_PASSWORD=sua_senha_forte_aqui # MUDE ISTO ```
 
---- Jellyfin --- 
+## Jellyfin
          ```yaml
       
       cd nextcloud
@@ -104,8 +103,7 @@ cd homelab`
               - ./jellyfin/config:/config
               - ./jellyfin/media:/data/media # Coloque seus filmes/séries aqui```
 
---- Uptimekuma ---
-
+## Uptimekuma
       ``` yaml     
       cd uptime-kuma
       vim docker-compose.yml
@@ -118,8 +116,7 @@ cd homelab`
           volumes:
             - ./uptime-kuma/data:/app/data```
 
---- Twingate ---
-    
+## Twingate    
     ```yaml
     cd twingate
     vim docker-compose.yml

@@ -43,13 +43,14 @@ A arquitetura é projetada para ser simples e segura:
 
 Para uma melhor organização, crie a seguinte estrutura de pastas no seu servidor:
 
-bash
+`bash
 mkdir -p homelab/nextcloud/data homelab/nextcloud/config homelab/jellyfin/config homelab/jellyfin/media homelab/uptime-kuma/data
-cd homelab 
+cd homelab` 
 
 ### 3. Docker Compose
 * Criar um arquivo docker-compose.yml dentro da pasta de cada aplicação a ser subida no homelab.
 
+```
 version: "3.8"
 
 networks:
@@ -111,6 +112,7 @@ services:
       - homelab-net
     volumes:
       - ./uptime-kuma/data:/app/data
+  ```
 
 ### 4. Configuração do Twingate
   1. Crie uma Rede Remota: No painel do Twingate, vá em Network -> Remote Networks e crie uma nova rede (ex: "Homelab").

@@ -51,8 +51,8 @@ cd homelab`
 * Criar um arquivo docker-compose.yml dentro da pasta de cada aplicação a ser subida no homelab.
 
 --- Nextcloud ---
-      ```yaml
-      
+
+      ``` yaml           
       cd nextcloud
       vim docker-compose.yml
       
@@ -105,7 +105,8 @@ cd homelab`
               - ./jellyfin/media:/data/media # Coloque seus filmes/séries aqui```
 
 --- Uptimekuma ---
-       ```yaml
+
+      ``` yaml     
       cd uptime-kuma
       vim docker-compose.yml
       
@@ -118,7 +119,8 @@ cd homelab`
             - ./uptime-kuma/data:/app/data```
 
 --- Twingate ---
-     ```yaml
+    
+    ```yaml
     cd twingate
     vim docker-compose.yml
     
@@ -128,8 +130,7 @@ cd homelab`
           environment:
             - TWINGATE_NETWORK=sua_rede
             - TWINGATE_ACESS_TOKEN=seu_token_de_acesso
-            - TWINGATE_REFRESH_TOKEN=seu_token_de_refresh
-  ```
+            - TWINGATE_REFRESH_TOKEN=seu_token_de_refresh ``` 
 
 ### 4. Configuração do Twingate
   1. Crie uma Rede Remota: No painel do Twingate, vá em Network -> Remote Networks e crie uma nova rede (ex: "Homelab").

@@ -1,0 +1,28 @@
+version: "3.8"
+      
+      services:
+        --- Nuvem Pessoal ---
+        nextcloud:
+          image: linuxserver/nextcloud:latest
+          container_name: nextcloud
+          restart: unless-stopped
+          environment:
+            - PUID=1000 # Rode 'id -u' no terminal para pegar seu ID
+            - PGID=1000 # Rode 'id -g' no terminal para pegar seu ID
+            - TZ=America/Sao_Paulo
+          volumes:
+            - ./nextcloud/config:/config
+            - ./nextcloud/data:/data
+          depends_on:
+            - nextcloud-db
+      
+        nextcloud-db:
+          image: postgres:15
+          container_name: nextcloud-db
+          restart: unless-stopped
+          volumes:
+            - ./nextcloud/db:/var/lib/postgresql/data
+          environment:
+            - POSTGRES_DB=nextcloud
+            - POSTGRES_USER=nextcloud
+            - POSTGRES_PASSWORD=sua_senha_forte_aqui # MUDE ISTO

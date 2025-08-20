@@ -89,17 +89,17 @@ cd homelab`
         
       services:
       --- Servidor de Mídia ---
-         jellyfin:
-           image: linuxserver/jellyfin:latest
-           container_name: jellyfin
-           restart: unless-stopped
-           environment:
-             - PUID=1000
-             - PGID=1000
-             - TZ=America/Sao_Paulo
-           volumes:
-             - ./jellyfin/config:/config
-             - ./jellyfin/media:/data/media # Coloque seus filmes/séries aqui
+        jellyfin:
+          image: linuxserver/jellyfin:latest
+          container_name: jellyfin
+          restart: unless-stopped
+          environment:
+            - PUID=1000
+            - PGID=1000
+            - TZ=America/Sao_Paulo
+          volumes:
+            - ./jellyfin/config:/config
+            - ./jellyfin/media:/data/media # Coloque seus filmes/séries aqui
 
 ## Uptimekuma
       cd uptime-kuma

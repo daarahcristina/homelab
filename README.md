@@ -44,13 +44,17 @@ A arquitetura é projetada para ser simples e segura:
 Para uma melhor organização, crie a seguinte estrutura de pastas no seu servidor:
 
 `bash
-mkdir -p homelab/nextcloud/data homelab/nextcloud/config homelab/jellyfin/config homelab/jellyfin/media homelab/uptime-kuma/data
+mkdir -p homelab/nextcloud/data homelab/nextcloud/config homelab/jellyfin/config homelab/jellyfin/media homelab/uptime-kuma/data homelab/twingate
 cd homelab` 
 
 ### 3. Docker Compose
 * Criar um arquivo docker-compose.yml dentro da pasta de cada aplicação a ser subida no homelab.
 
 ```yaml
+
+cd nextcloud
+vim docker-compose.yml
+
 version: "3.8"
 
 services:
@@ -80,7 +84,10 @@ services:
       - POSTGRES_USER=nextcloud
       - POSTGRES_PASSWORD=sua_senha_forte_aqui # MUDE ISTO
 
-  --- Servidor de Mídia ---
+cd nextcloud
+vim docker-compose.yml
+
+ --- Servidor de Mídia ---
   jellyfin:
     image: linuxserver/jellyfin:latest
     container_name: jellyfin
@@ -93,6 +100,9 @@ services:
       - ./jellyfin/config:/config
       - ./jellyfin/media:/data/media # Coloque seus filmes/séries aqui
 
+cd uptime-kuma
+vim docker-compose.yml
+
   --- Monitoramento ---
   uptime-kuma:
     image: louislam/uptime-kuma:1
@@ -100,6 +110,17 @@ services:
     restart: unless-stopped
     volumes:
       - ./uptime-kuma/data:/app/data
+
+cd twingate
+vim docker-compose.yml
+
+   --- Acesso Remoto ---
+   twingate-connector:
+      image: twingate/connector:latest
+      environment:
+        - TWINGATE_NETWORK=sua_rede
+        - TWINGATE_ACESS_TOKEN=seu_token_de_acesso
+        - TWINGATE_REFRESH_TOKEN=seu_token_de_refresh
   ```
 
 ### 4. Configuração do Twingate
@@ -133,7 +154,59 @@ services:
 
 ### 5. Inicie os serviços com: `docker-compose up -d ` 
 
-### 6. Acessando Remotamente
+### 6. Configurando sua Homepage
+
+  1. Edite o docker-compose.yml do seu Homepage.
+  2. Adicione um volume para mapear o "socket" do Docker para dentro do contêiner do Homepage.
+  3. ```yaml
+     # No seu arquivo docker-compose.yml do Homepage...
+      services:
+        homepage:
+          image: ghcr.io/gethomepage/homepage:latest
+          container_name: homepage
+          # ... outras configurações como environment, ports ...
+          volumes:
+            - ./sua-pasta-de-config-homepage:/app/config # Você já tem isso
+            - /var/run/docker.sock:/var/run/docker.sock:ro # <-- ADICIONE ESTA LINHA
+          # ... restart, etc. ...```
+  4. Aplique a mudança:
+      No terminal, na pasta do docker-compose.yml do Homepage, rode: ```docker-compose up -d ```
+  5. Acesse a pasta no seu servidor que você mapeou para a configuração do Homepage (a ./sua-pasta-de-config-homepage do exemplo acima).
+  6. Abra o arquivo services.yaml e substitua o conteúdo de services.yaml por isto:
+      ```yaml
+      # services.yaml
+
+      ## MUDE AS URLs ABAIXO PARA AS SUAS URLs REAIS ##
+      
+      - "Nuvem Pessoal":
+          - Nextcloud:
+              href: https://nextcloud.seusite.com
+              description: Arquivos, Calendário e Contatos
+              icon: mdi-nextcloud
+              container: nextcloud # Nome do contêiner para o status do Docker
+      
+          - Vaultwarden:
+              href: https://vault.seusite.com
+              description: Cofre de Senhas Pessoal
+              icon: mdi-shield-key
+              container: vaultwarden
+      
+      - "Mídia e Rede":
+          - Jellyfin:
+              href: https://jellyfin.seusite.com
+              description: Servidor de Mídia
+              icon: mdi-jellyfin
+              container: jellyfin
+      
+          - AdGuard Home:
+              href: https://adguard.seusite.com
+              description: Bloqueador de Anúncios da Rede
+              icon: mdi-shield-dns
+              container: adguard ```
+    
+    7. Depois de salvar os arquivos services.yaml e widgets.yaml, o Homepage deve recarregar a configuração automaticamente. Se não o fizer, reinicie o contêiner: ```docker-compose restart homepage ```
+ 
+### 7. Acessando Remotamente
   1. Baixe e instale o cliente Twingate no seu notebook, celular ou outro dispositivo.
   2. Faça login na sua conta.
   3. Agora, basta abrir o navegador e acessar os endereços que você configurou (ex: http://jellyfin.homelab.local, http://kuma.homelab.local). O acesso será transparente e seguro!
@@ -148,3 +221,13 @@ services:
 * Não se limite, pesquise e descubra como você pode implementar esse projeto na sua realidade.
 * Foi utilizado o NPM para realizar o proxy reverso de algumas aplicações, para mais detalhes consulte (https://nginxproxymanager.com/ | https://github.com/NginxProxyManager/nginx-proxy-manager)
     - Ao utilizá-lo serão necessários outros passos de configuração, incluse atualizar o arquivos HOSTS no seu SO hospedeiro, em caso de uso de uma VM, como utilizado nesse projeto.
+    - Nginx Proxy Manager (NPM)
+      Para cada serviço (Nextcloud, Vaultwarden, Jellyfin e AdGuard), crie um "Proxy Host".
+       * Exemplo para o Nextcloud:
+       * Domain Names: nextcloud.seusite.com (ou o domínio que você usa)
+       * Scheme: http
+       * Forward Hostname / IP: nextcloud (o nome do serviço no docker-compose.yml)
+       * Forward Port: 80
+       * Ative a opção Websockets support
+       
+    

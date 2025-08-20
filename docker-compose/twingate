@@ -1,0 +1,8 @@
+services:
+       --- Acesso Remoto ---
+      twingate-connector:
+         image: twingate/connector:latest
+         environment:
+           - TWINGATE_NETWORK=sua_rede
+           - TWINGATE_ACESS_TOKEN=seu_token_de_acesso
+           - TWINGATE_REFRESH_TOKEN=seu_token_de_refresh

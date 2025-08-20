@@ -149,4 +149,13 @@ services:
   1. Baixe e instale o cliente Twingate no seu notebook, celular ou outro dispositivo.
   2. Faça login na sua conta.
   3. Agora, basta abrir o navegador e acessar os endereços que você configurou (ex: http://jellyfin.homelab.local, http://kuma.homelab.local). O acesso será transparente e seguro!
-  
+
+
+## ✨ Pontos Importantes! 
+
+* Não esqueça de habilitar o ssh para acessar o servidor remotamente.
+* Sempre atualize seu servidor antes de iniciar qualquer implementação.
+* Na dúvida, consulte a documentação oficial da aplicação desejada.
+* Não se limite, pesquise e descubra como você pode implementar esse projeto na sua realidade.
+* Foi utilizado o NPM para realizar o proxy reverso de algumas aplicações, para mais detalhes consulte (https://nginxproxymanager.com/ | https://github.com/NginxProxyManager/nginx-proxy-manager)
+    - Ao utilizá-lo serão necessários outros passos de configuração, incluse atualizar o arquivos HOSTS no seu SO hospedeiro, em caso de uso de uma VM, como utilizado nesse projeto.

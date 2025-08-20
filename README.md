@@ -53,18 +53,12 @@ cd homelab`
 ```yaml
 version: "3.8"
 
-networks:
-  homelab-net:
-    driver: bridge
-
 services:
   --- Nuvem Pessoal ---
   nextcloud:
     image: linuxserver/nextcloud:latest
     container_name: nextcloud
     restart: unless-stopped
-    networks:
-      - homelab-net
     environment:
       - PUID=1000 # Rode 'id -u' no terminal para pegar seu ID
       - PGID=1000 # Rode 'id -g' no terminal para pegar seu ID
@@ -79,8 +73,6 @@ services:
     image: postgres:15
     container_name: nextcloud-db
     restart: unless-stopped
-    networks:
-      - homelab-net
     volumes:
       - ./nextcloud/db:/var/lib/postgresql/data
     environment:
@@ -93,8 +85,6 @@ services:
     image: linuxserver/jellyfin:latest
     container_name: jellyfin
     restart: unless-stopped
-    networks:
-      - homelab-net
     environment:
       - PUID=1000
       - PGID=1000
@@ -108,8 +98,6 @@ services:
     image: louislam/uptime-kuma:1
     container_name: uptime-kuma
     restart: unless-stopped
-    networks:
-      - homelab-net
     volumes:
       - ./uptime-kuma/data:/app/data
   ```
@@ -155,6 +143,7 @@ services:
 
 * Não esqueça de habilitar o ssh para acessar o servidor remotamente.
 * Sempre atualize seu servidor antes de iniciar qualquer implementação.
+* Atente-se a identação dos arquivos docker-compose, muitos erros são gerados por conta disso.
 * Na dúvida, consulte a documentação oficial da aplicação desejada.
 * Não se limite, pesquise e descubra como você pode implementar esse projeto na sua realidade.
 * Foi utilizado o NPM para realizar o proxy reverso de algumas aplicações, para mais detalhes consulte (https://nginxproxymanager.com/ | https://github.com/NginxProxyManager/nginx-proxy-manager)

@@ -57,7 +57,7 @@ networks:
     driver: bridge
 
 services:
-  # --- Nuvem Pessoal ---
+  --- Nuvem Pessoal ---
   nextcloud:
     image: linuxserver/nextcloud:latest
     container_name: nextcloud
@@ -87,7 +87,7 @@ services:
       - POSTGRES_USER=nextcloud
       - POSTGRES_PASSWORD=sua_senha_forte_aqui # MUDE ISTO
 
-  # --- Servidor de Mídia ---
+  --- Servidor de Mídia ---
   jellyfin:
     image: linuxserver/jellyfin:latest
     container_name: jellyfin
@@ -102,7 +102,7 @@ services:
       - ./jellyfin/config:/config
       - ./jellyfin/media:/data/media # Coloque seus filmes/séries aqui
 
-  # --- Monitoramento ---
+  --- Monitoramento ---
   uptime-kuma:
     image: louislam/uptime-kuma:1
     container_name: uptime-kuma
